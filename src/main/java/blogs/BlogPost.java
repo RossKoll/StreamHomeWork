@@ -2,7 +2,7 @@ package blogs;
 
 import java.util.Objects;
 
-public class BlogPost {
+public class BlogPost{
 
 		private String title;
 		private String author;
@@ -54,4 +54,5 @@ public class BlogPost {
 		public String toString() {
 			return "BlogPost{" + "title='" + title + '\'' + ", type=" + type + ", likes=" + likes + '}';
 		}
-	}
+
+}

@@ -3,8 +3,11 @@ package Stream;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ public class TestStream {
 		List<Integer> listOfNumbers = Arrays.asList(1, 2, 3, 4, 5);
 
 		// when
+		long quantity = listOfNumbers.stream().mapToLong(Integer::longValue).sum();
 
 		// then
 		assertThat(quantity).isEqualTo(15L);
@@ -31,7 +35,7 @@ public class TestStream {
 		List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
 		// when
-
+		List<Integer> numbersGreaterThan5 = numbers.stream().filter(x -> x > 5 && x % 2 == 0).collect(Collectors.toList());
 
 		// then
 		assertThat(numbersGreaterThan5).isEqualTo(Arrays.asList(6, 8));
@@ -43,7 +47,8 @@ public class TestStream {
 		List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
 
 		// when
-
+		List<String> multipliedNumbersAsString  = numbers.stream().map(x -> x * 2).map(Objects::toString)
+				.collect(Collectors.toList());
 
 		// then
 		Assertions.assertThat(multipliedNumbersAsString).containsExactly("2", "4", "6", "8", "10");
@@ -52,9 +57,13 @@ public class TestStream {
 	@Test
 	public void shouldCheckIfThereIsANumberGreaterThan4() {
 		// given
-		List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5);
+		List<Integer> numbers = Arrays.asList(1, 2, 3,4, 5);
 
 		// when
+		List<Integer> collect = numbers.stream().filter(x -> x > 4).collect(Collectors.toList());
+		Boolean anyNumberGreaterThan4;
+		if (collect.size() > 0) {anyNumberGreaterThan4 = true;}
+		else anyNumberGreaterThan4 = false;
 
 		// then
 		assertThat(anyNumberGreaterThan4).isTrue();
@@ -66,7 +75,7 @@ public class TestStream {
 		List<Integer> numbers = Arrays.asList(2, 4, 6);
 
 		// when
-
+		boolean eachNumberIsEven = numbers.stream().allMatch(x -> x % 2 == 0);
 
 		// then
 		assertThat(eachNumberIsEven).isTrue();
@@ -78,12 +87,12 @@ public class TestStream {
 		List<String> listOfWords = Arrays.asList("B", "A", "D", "E", "C");
 
 		// when
-
+		List<String> sortedList = listOfWords.stream().sorted().collect(Collectors.toList());
 
 		// then
 		Assertions.assertThat(sortedList).containsExactly("A", "B", "C", "D", "E");
 	}
-
+//
 	@Test
 	public void shouldReduceOnlyPositiveValuesToCalculateMultiplyThem() {
 		// given
@@ -95,11 +104,11 @@ public class TestStream {
 				BigDecimal.valueOf(2));
 
 		// when
-
+		Optional<Integer> reduced = numbers.stream().map(BigDecimal::intValue).filter(x -> x >0).reduce((i, j) -> i * j);
 
 		// then
 		assertThat(reduced.isPresent()).isTrue();
-		assertThat(reduced.get()).isEqualByComparingTo("300");
+		assertThat(reduced.get()).isEqualByComparingTo(300);
 	}
 
 	@Test
@@ -113,14 +122,14 @@ public class TestStream {
 				new BlogPost("Tech review 2", "Author 1", BlogPostType.REVIEW, 15));
 
 		// when
-
+		Map<BlogPostType, List<BlogPost>> postsPerType = posts.stream().collect(Collectors.groupingBy(BlogPost::getType));
 
 		// then
 		assertThat(postsPerType.get(BlogPostType.NEWS).size()).isEqualTo(2);
 		assertThat(postsPerType.get(BlogPostType.GUIDE).size()).isEqualTo(1);
 		assertThat(postsPerType.get(BlogPostType.REVIEW).size()).isEqualTo(2);
 	}
-
+//
 	@Test
 	public void shouldBeCollectedToMapWithBlogPostTitleAsKey() {
 		// given
@@ -132,8 +141,11 @@ public class TestStream {
 				new BlogPost("Tech review 2", "Author 1", BlogPostType.REVIEW, 15));
 
 		// when
+		Map<String, BlogPost> postPerTitle = posts.stream().collect(Collectors.toMap(BlogPost::getTitle, Function.identity()));
 
-		// then
+		postPerTitle.forEach((title, p) -> System.out.format("title %s : %s\n", title, p));
+
+		 //then
 		assertThat(postPerTitle.get("News item 1").getTitle()).isEqualTo("News item 1");
 		assertThat(postPerTitle.get("Tech review 1").getTitle()).isEqualTo("Tech review 1");
 		assertThat(postPerTitle.get("Programming guide").getTitle()).isEqualTo("Programming guide");
